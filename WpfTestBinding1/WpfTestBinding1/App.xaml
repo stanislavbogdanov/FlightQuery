@@ -1,9 +1,9 @@
-﻿<Application x:Class="FlightQuery.App"
+﻿<Application x:Class="WpfTestBinding1.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:FlightQuery"
+             xmlns:local="clr-namespace:WpfTestBinding1"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <local:FlightQueryData x:Key="FQDataInstance" />
+        <local:MyData x:Key="MyDataInstance"/>
     </Application.Resources>
 </Application>

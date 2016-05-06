@@ -15,7 +15,7 @@
                     <MenuItem Header="Чтение"></MenuItem>
                     <MenuItem Header="Постобработка"></MenuItem>
                     <Separator/>
-                    <MenuItem Header="Настройки..." Click="MenuItem_Click"></MenuItem>
+                    <MenuItem Header="Настройки..." Click="SettingsMenuItem_Click"></MenuItem>
                     <Separator/>
                     <MenuItem Header="Выход" Click="Exit_Click"></MenuItem>
                 </MenuItem>

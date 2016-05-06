@@ -23,6 +23,7 @@ namespace FlightQuery
     /// </summary>
     public partial class MainWindow : Window
     {
+        /*
         private bool _autodownload = true;
         public bool IsAutoDownload
         {
@@ -44,7 +45,7 @@ namespace FlightQuery
             get { return true; }
             set { }
         }
-
+        
         private string errMsg = string.Empty;
         private async Task<bool> DownloadAsync()
         {
@@ -67,7 +68,7 @@ namespace FlightQuery
             await Task.Run(() => Thread.Sleep(1000));
             return true;
         }
-
+        */
         private OpenFileDialog openSSIMFileDialog = new OpenFileDialog();
         public MainWindow()
         {
@@ -87,23 +88,27 @@ namespace FlightQuery
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            bool successStory = true;
+            
+            FlightQueryData fqd = (FlightQueryData)App.Current.Resources["FQDataInstance"];
+            bool succession = await fqd.AutoRunAsync(this);
 
+            #region Old Stage 1 - 4
+            /*
             // Stage 1 - Download
             if (IsAutoDownload)
             {
-                successStory = await DownloadAsync();
-                if (!successStory) {
+                succession = await DownloadAsync();
+                if (!succession) {
                     WriteLineToLog("Ошибка автоматической загрузки расписания. Проверьте настройки программы. Рекомендуется обновить расписание вручную.", 
                                    false);
                 }
             }
 
             // Stage 2 - Preprocessing
-            if (successStory && IsAutoPreprocess)
+            if (succession && IsAutoPreprocess)
             {
-                successStory = await PreprocessAsync();
-                if (!successStory) {
+                succession = await PreprocessAsync();
+                if (!succession) {
                     WriteLineToLog("Ошибка предварительной обработки. Проверьте настройки программы. Рекомендуется обновить расписание вручную.", 
                                    false);
                 }
@@ -111,7 +116,7 @@ namespace FlightQuery
 
             // Stage 3 - Reading SSIM file
             string SSIMfname = string.Empty;
-            if (!(successStory && IsAutoReadSSIM))
+            if (!(succession && IsAutoReadSSIM))
             {
                 panelTimetableUpdate.Visibility = Visibility.Visible;
                 try
@@ -129,8 +134,8 @@ namespace FlightQuery
             else
             {
                 WriteLineToLog("Выбран " + System.IO.Path.GetFileName(SSIMfname), true);
-                successStory = await ReadSSIMAsync(SSIMfname);
-                if (!successStory)
+                succession = await ReadSSIMAsync(SSIMfname);
+                if (!succession)
                 {
                     WriteLineToLog("Ошибка чтения SSIM.", true);
                 }
@@ -139,10 +144,10 @@ namespace FlightQuery
             // Stage 4 - Postprocessing
             if (IsAutoPostprocess)
             {
-                if (successStory)
+                if (succession)
                 {
-                    successStory = await PostprocessAsync();
-                    if (!successStory)
+                    succession = await PostprocessAsync();
+                    if (!succession)
                     {
                         WriteLineToLog("Ошибка постобработки. Проверьте настройки программы.", false);
                     }
@@ -152,6 +157,8 @@ namespace FlightQuery
                     WriteLineToLog("Постобработка пропущена.", false);
                 }
             }
+            */
+            #endregion
 
             // Stage 5 - Select Date Range
             panelDateRange.Visibility = Visibility.Visible;
@@ -162,15 +169,43 @@ namespace FlightQuery
             openSSIMFileDialog.ShowDialog();
         }
 
-        private Task<string> GetUserSSIMFileName()
+        public async Task<string> GetUserSSIMFileNameAsync()
+        {
+            string SSIMfname = string.Empty;
+            this.Dispatcher.Invoke(() => {
+                panelTimetableUpdate.Visibility = Visibility.Visible;
+            });            
+            try
+            {
+                SSIMfname = await Task.Run(() =>
+                {
+                    TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+                    openSSIMFileDialog.FileOk += delegate { tcs.SetResult(openSSIMFileDialog.FileName); };
+                    btnSSIMSkip.Click += delegate { tcs.SetCanceled(); };
+                    return tcs.Task;
+                });
+            }
+            catch
+            {
+                SSIMfname = string.Empty;
+            }
+            this.Dispatcher.Invoke(() => {
+                panelTimetableUpdate.Visibility = Visibility.Collapsed;
+            });
+            return SSIMfname;
+        }
+
+        /*
+        private Task<string> GetUserSSIMFileNameTask()
         {
             TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
             openSSIMFileDialog.FileOk += delegate { tcs.SetResult(openSSIMFileDialog.FileName); };
             btnSSIMSkip.Click += delegate { tcs.SetCanceled(); };
             return tcs.Task;
         }
+        */
 
-        private void WriteLineToLog(string msg, bool clear)
+        public void WriteLineToLog(string msg, bool clear)
         {
             this.Dispatcher.Invoke(() => {
                 if (clear) log.Inlines.Clear();
@@ -184,10 +219,13 @@ namespace FlightQuery
             this.Close();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             SettingsWindow setwin = new SettingsWindow(this);
+            setwin.Owner = this;
+            setwin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             setwin.ShowDialog();
         }
+
     }
 }

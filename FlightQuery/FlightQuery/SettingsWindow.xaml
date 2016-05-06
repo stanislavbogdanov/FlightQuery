@@ -14,7 +14,7 @@
                         <StackPanel.Resources>
                             <local:MainWindow x:Key="AutoDownloadSource"/>
                         </StackPanel.Resources>
-                        <CheckBox x:Name="checkBoxAutoDownload" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Source={StaticResource AutoDownloadSource}, Path=IsAutoDownload, Mode=OneTime}"/>
+                        <CheckBox x:Name="checkBoxAutoDownload" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoDownload}">
                             <Canvas x:Name="cnvAutoDownloadOptions" Height="54" Margin="10,10">
                                 <Label Content="Ссылка:" Canvas.Left="0" Canvas.Top="0" Width="100"/>
