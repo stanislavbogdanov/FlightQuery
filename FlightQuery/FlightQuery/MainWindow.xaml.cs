@@ -221,11 +221,16 @@ namespace FlightQuery
 
         private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SettingsWindow setwin = new SettingsWindow(this);
+            SettingsWindow setwin = new SettingsWindow();
             setwin.Owner = this;
             setwin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             setwin.ShowDialog();
         }
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            FlightQueryData fqd = (FlightQueryData)App.Current.Resources["FQDataInstance"];
+            fqd.Dispose();
+        }
     }
 }

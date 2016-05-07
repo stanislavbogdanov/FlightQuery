@@ -7,20 +7,17 @@
         mc:Ignorable="d"
         Title="Настройки" Height="308" Width="530" ResizeMode="NoResize">
     <Grid>
-        <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="212" Margin="10,10,0,0" VerticalAlignment="Top" Width="494">
+        <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="212" Margin="10,10,0,0" VerticalAlignment="Top" Width="494" DataContext="{Binding Source={StaticResource FQDataInstance}}">
             <TabItem Header="Загрузка">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" Height="100">
-                        <StackPanel.Resources>
-                            <local:MainWindow x:Key="AutoDownloadSource"/>
-                        </StackPanel.Resources>
-                        <CheckBox x:Name="checkBoxAutoDownload" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <CheckBox x:Name="checkBoxAutoDownload" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Opt_IsAutoDownload, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoDownload}">
                             <Canvas x:Name="cnvAutoDownloadOptions" Height="54" Margin="10,10">
                                 <Label Content="Ссылка:" Canvas.Left="0" Canvas.Top="0" Width="100"/>
                                 <Label Content="Сохранить как:" Canvas.Top="26" Width="100"/>
-                                <TextBox x:Name="txtURL" HorizontalAlignment="Left" Text="" VerticalAlignment="Top" Width="314" Canvas.Left="105" Canvas.Top="4" MaxLines="1" Height="20"/>
-                                <TextBox x:Name="txtSaveDownloaded" HorizontalAlignment="Left" Text="" VerticalAlignment="Top" Width="234" Canvas.Left="105" Canvas.Top="29" MaxLines="1" Height="20"/>
+                                <TextBox x:Name="txtUpdateURL" HorizontalAlignment="Left" Text="{Binding Opt_UpdateURL, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" Width="314" Canvas.Left="105" Canvas.Top="4" MaxLines="1" Height="20"/>
+                                <TextBox x:Name="txtSaveUpdateAs" HorizontalAlignment="Left" Text="{Binding Opt_SaveUpdateAs, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" Width="234" Canvas.Left="105" Canvas.Top="29" MaxLines="1" Height="20"/>
                                 <Button x:Name="btnBrowseDownloaded" Content="Выбрать..." Canvas.Left="344" Canvas.Top="29" Width="75" Height="20"/>
                             </Canvas>
                         </Border>
@@ -30,11 +27,11 @@
             <TabItem Header="Предобработка">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" Height="100">
-                        <CheckBox x:Name="checkBoxAutoPreprocess" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="checkBoxAutoPreprocess" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Opt_IsAutoPreprocess, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoPreprocess}">
                             <Canvas x:Name="cnvAutoPreprocessOptions" Height="54" Margin="10,10">
                                 <Label Content="Команда:" Canvas.Left="0" Canvas.Top="0" Width="70"/>
-                                <TextBox x:Name="txtAutoPreprocessCommand" HorizontalAlignment="Left" Text="" VerticalAlignment="Top" Width="344" Canvas.Left="75" Canvas.Top="4" MaxLines="1" Height="20"/>
+                                <TextBox x:Name="txtAutoPreprocessCommand" HorizontalAlignment="Left" Text="{Binding Opt_AutoPreprocessCommand, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" Width="344" Canvas.Left="75" Canvas.Top="4" MaxLines="1" Height="20"/>
                             </Canvas>
                         </Border>
                     </StackPanel>
@@ -43,13 +40,13 @@
             <TabItem Header="Чтение" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" Height="100">
-                        <CheckBox x:Name="checkBoxAutoReadSSIM" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="checkBoxAutoReadSSIM" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Opt_IsAutoReadSSIM, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoReadSSIM}">
                             <Canvas x:Name="cnvAutoReadSSIMOptions" Height="54" Margin="10,10">
                                 <Label Content="Файл SSIM:" Canvas.Top="0" Width="70" Padding="0,5,5,5"/>
-                                <TextBox x:Name="txtSSIMFileName" HorizontalAlignment="Left" Text="" VerticalAlignment="Top" Width="264" Canvas.Left="75" Canvas.Top="4" MaxLines="1" Height="20"/>
+                                <TextBox x:Name="txtSSIMFileName" HorizontalAlignment="Left" Text="{Binding Opt_SSIMFileName, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" Width="264" Canvas.Left="75" Canvas.Top="4" MaxLines="1" Height="20"/>
                                 <Button x:Name="btnBrowseSSIMFileName" Content="Выбрать..." Canvas.Left="344" Canvas.Top="4" Width="75" Height="20"/>
-                                <CheckBox x:Name="checkBoxKeepUpdate" Content="Сохранять изменения в базе данных" Canvas.Top="33" />
+                                <CheckBox x:Name="checkBoxKeepUpdate" Content="Сохранять изменения в базе данных" Canvas.Top="33" IsChecked="{Binding Opt_IsKeepUpdate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
                             </Canvas>
                         </Border>
                     </StackPanel>
@@ -58,11 +55,11 @@
             <TabItem Header="Постобработка" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" Height="100">
-                        <CheckBox x:Name="checkBoxAutoPostprocess" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="checkBoxAutoPostprocess" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Opt_IsAutoPostprocess, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoPostprocess}">
                             <Canvas x:Name="cnvAutoPostprocessOptions" Height="54" Margin="10,10">
                                 <Label Content="Команда:" Canvas.Left="0" Canvas.Top="0" Width="100"/>
-                                <TextBox x:Name="txtAutoPostprocessCommand" HorizontalAlignment="Left" Text="" VerticalAlignment="Top" Width="314" Canvas.Left="105" Canvas.Top="4" MaxLines="1" Height="20"/>
+                                <TextBox x:Name="txtAutoPostprocessCommand" HorizontalAlignment="Left" Text="{Binding Opt_AutoPostprocessCommand, Mode=TwoWay, UpdateSourceTrigger=Explicit}" VerticalAlignment="Top" Width="314" Canvas.Left="105" Canvas.Top="4" MaxLines="1" Height="20"/>
                             </Canvas>
                         </Border>
                     </StackPanel>

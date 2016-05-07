@@ -19,23 +19,24 @@ namespace FlightQuery
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public MainWindow MainWindowOwner
-        {
-            get { return Owner as MainWindow; }
-            set { Owner = value; }
-        }
-        public SettingsWindow(MainWindow owner)
+        public SettingsWindow()
         {
             InitializeComponent();
-            MainWindowOwner = owner;
-            //checkBoxAutoDownload.IsChecked = owner.AutoDownload;
         }
 
         private void btnSettingsOK_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
-            //MainWindow owner = (MainWindow)Owner;
-            //owner.AutoDownload = checkBoxAutoDownload.IsChecked.GetValueOrDefault();
+            checkBoxAutoDownload.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+            checkBoxAutoPreprocess.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+            checkBoxAutoReadSSIM.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+            checkBoxAutoPostprocess.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+            txtUpdateURL.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            txtSaveUpdateAs.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            txtAutoPreprocessCommand.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            txtSSIMFileName.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+            checkBoxKeepUpdate.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+            txtAutoPostprocessCommand.GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
     }
 }
