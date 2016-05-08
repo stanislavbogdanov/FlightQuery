@@ -18,32 +18,150 @@ namespace FlightQuery
             ReadOptionsFromConfig();
         }
 
-        //public delegate void LogOutputHandler(object sender, LogEventArgs le);
-        //public event LogOutputHandler LogOutput;
+        #region Options - Config reading/writing
+        private const ulong _ALL_OPTIONS_BITS = 0x3FF;
+        private const ulong _OPT_ISAUTODOWNLOAD_MASK = 0x1;
+        private const ulong _OPT_ISAUTOPREPROCESS_MASK = 0x2;
+        private const ulong _OPT_ISAUTOREADSSIM_MASK = 0x4;
+        private const ulong _OPT_ISAUTOPOSTPROCESS_MASK = 0x8;
+        private const ulong _OPT_UPDATEURL_MASK = 0x10;
+        private const ulong _OPT_SAVEUPDATEAS_MASK = 0x20;
+        private const ulong _OPT_AUTOPREPROCESSCOMMAND_MASK = 0x40;
+        private const ulong _OPT_SSIMFILENAME_MASK = 0x80;
+        private const ulong _OPT_ISKEEPUPDATE_MASK = 0x100;
+        private const ulong _OPT_AUTOPOSTPROCESSCOMMAND_MASK = 0x200;
 
-        //public delegate void SetPanelVisibilityHandler(object sender, PanelVisibilityEventArgs pve);
-        //public event SetPanelVisibilityHandler SetPanelVisibility;
+        private ulong _modifiedoptionsbits = 0;
+        private ulong ModifiedOptionsBits
+        {
+            get { return _modifiedoptionsbits; }
+            set
+            {
+                _modifiedoptionsbits = value;
+                if (_modifiedoptionsbits == _ALL_OPTIONS_BITS)
+                {
+                    // All options was modified
+                    SaveOptionsToConfig();
+                    _modifiedoptionsbits = 0;
+                }
+            }
+        }
 
+        private bool _opt_isautodownload = false;
         public bool Opt_IsAutoDownload
-        { get; set; }
+        {
+            get { return _opt_isautodownload; }
+            set
+            {
+                _opt_isautodownload = value;
+                ModifiedOptionsBits |= _OPT_ISAUTODOWNLOAD_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private bool _opt_isautopreprocess = false;
         public bool Opt_IsAutoPreprocess
-        { get; set; }
+        {
+            get { return _opt_isautopreprocess; }
+            set
+            {
+                _opt_isautopreprocess = value;
+                ModifiedOptionsBits |= _OPT_ISAUTOPREPROCESS_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private bool _opt_isautoreadssim = false;
         public bool Opt_IsAutoReadSSIM
-        { get; set; }
+        {
+            get { return _opt_isautoreadssim; }
+            set
+            {
+                _opt_isautoreadssim = value;
+                ModifiedOptionsBits |= _OPT_ISAUTOREADSSIM_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private bool _opt_isautopostprocess = false;
         public bool Opt_IsAutoPostprocess
-        { get; set; }
+        {
+            get { return _opt_isautopostprocess; }
+            set
+            {
+                _opt_isautopostprocess = value;
+                ModifiedOptionsBits |= _OPT_ISAUTOPOSTPROCESS_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private string _opt_updateurl = "";
         public string Opt_UpdateURL
-        { get; set; }
+        {
+            get { return _opt_updateurl; }
+            set
+            {
+                if (value == "")
+                    _opt_updateurl = value;
+                else
+                {
+                    UriBuilder ub = new UriBuilder(value);
+                    _opt_updateurl = ub.ToString();
+                }
+                ModifiedOptionsBits |= _OPT_UPDATEURL_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private string _opt_saveupdateas = "";
         public string Opt_SaveUpdateAs
-        { get; set; }
+        {
+            get { return _opt_saveupdateas; }
+            set
+            {
+                _opt_saveupdateas = (value == "") ? GetFileNameFromURL(Opt_UpdateURL) : value;
+                ModifiedOptionsBits |= _OPT_SAVEUPDATEAS_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private string _opt_autopreprocesscommand = "";
         public string Opt_AutoPreprocessCommand
-        { get; set; }
+        {
+            get { return _opt_autopreprocesscommand; }
+            set
+            {
+                _opt_autopreprocesscommand = value;
+                ModifiedOptionsBits |= _OPT_AUTOPREPROCESSCOMMAND_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private string _opt_ssimfilename = "";
         public string Opt_SSIMFileName
-        { get; set; }
+        {
+            get { return _opt_ssimfilename; }
+            set
+            {
+                _opt_ssimfilename = value;
+                ModifiedOptionsBits |= _OPT_SSIMFILENAME_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private bool _opt_iskeepupdate = true;
         public bool Opt_IsKeepUpdate
-        { get; set; }
+        {
+            get { return _opt_iskeepupdate; }
+            set
+            {
+                _opt_iskeepupdate = value;
+                ModifiedOptionsBits |= _OPT_ISKEEPUPDATE_MASK; // Set bit "modified" for this option
+            }
+        }
+
+        private string _opt_autopostprocesscommand = "";
         public string Opt_AutoPostprocessCommand
-        { get; set; }
+        {
+            get { return _opt_autopostprocesscommand; }
+            set
+            {
+                _opt_autopostprocesscommand = value;
+                ModifiedOptionsBits |= _OPT_AUTOPOSTPROCESSCOMMAND_MASK; // Set bit "modified" for this option
+            }
+        }
 
         private void PrepareConfig()
         {
@@ -55,32 +173,11 @@ namespace FlightQuery
                 if (appSettings.Settings["IsAutoPreprocess"] == null) appSettings.Settings.Add("IsAutoPreprocess", Boolean.FalseString);
                 if (appSettings.Settings["IsAutoReadSSIM"] == null) appSettings.Settings.Add("IsAutoReadSSIM", Boolean.FalseString);
                 if (appSettings.Settings["IsAutoPostprocess"] == null) appSettings.Settings.Add("IsAutoPostprocess", Boolean.FalseString);
-                if (appSettings.Settings["UpdateURL"] == null)
-                    appSettings.Settings.Add("UpdateURL", "");
-                else
-                {
-                    UriBuilder ub = new UriBuilder(appSettings.Settings["UpdateURL"].Value);
-                    appSettings.Settings["UpdateURL"].Value = ub.ToString();
-                }
+                if (appSettings.Settings["UpdateURL"] == null) appSettings.Settings.Add("UpdateURL", "");
+              
                 if (appSettings.Settings["SaveUpdateAs"] == null)
-                {
-                    if (appSettings.Settings["UpdateURL"].Value == "")
-                        appSettings.Settings.Add("SaveUpdateAs", "");
-                    else
-                    {
-                        string fn = "";
-                        try
-                        {
-                            UriBuilder ub = new UriBuilder(appSettings.Settings["UpdateURL"].Value);
-                            fn = System.IO.Path.GetFileName(ub.Path);
-                        }
-                        catch (UriFormatException)
-                        {
-                            fn = "";
-                        }
-                        appSettings.Settings.Add("SaveUpdateAs", (fn == "") ? "file.dat" : fn);
-                    }
-                }
+                    appSettings.Settings.Add("SaveUpdateAs", GetFileNameFromURL(appSettings.Settings["UpdateURL"].Value));
+
                 if (appSettings.Settings["AutoPreprocessCommand"] == null) appSettings.Settings.Add("AutoPreprocessCommand", "");
                 if (appSettings.Settings["SSIMFileName"] == null) appSettings.Settings.Add("SSIMFileName", "");
                 if (appSettings.Settings["IsKeepUpdate"] == null) appSettings.Settings.Add("IsKeepUpdate", Boolean.TrueString);
@@ -106,6 +203,11 @@ namespace FlightQuery
                 Opt_IsAutoPostprocess = (bool)ast.GetValue("IsAutoPostprocess", typeof(bool));
                 Opt_UpdateURL = (string)ast.GetValue("UpdateURL", typeof(string));
                 Opt_SaveUpdateAs = (string)ast.GetValue("SaveUpdateAs", typeof(string));
+                if (Opt_SaveUpdateAs == "")
+                {
+                    Opt_SaveUpdateAs = GetFileNameFromURL(Opt_UpdateURL);
+                }
+
                 Opt_AutoPreprocessCommand = (string)ast.GetValue("AutoPreprocessCommand", typeof(string));
                 Opt_SSIMFileName = (string)ast.GetValue("SSIMFileName", typeof(string));
                 Opt_IsKeepUpdate = (bool)ast.GetValue("IsKeepUpdate", typeof(bool));
@@ -139,12 +241,28 @@ namespace FlightQuery
 
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
-
             }
             catch (Exception e)
             {
                 ConfigErrorMessage(e.Message);
             }
+        }
+
+        private string GetFileNameFromURL (string sURL)
+        {
+            if (sURL == "") return "";
+            string fn = "";
+            try
+            {
+                UriBuilder ub = new UriBuilder(sURL);
+                fn = System.IO.Path.GetFileName(ub.Path);
+            }
+            catch (UriFormatException)
+            {
+                fn = "";
+            }
+            if (fn == "") fn = "file.dat";
+            return fn;
         }
 
         private void ConfigErrorMessage(string msgtext)
@@ -155,8 +273,7 @@ namespace FlightQuery
                     MessageBoxButton.OK,
                     MessageBoxImage.Stop);
         }
-
-        //private string errMsg = string.Empty;
+        #endregion
 
         public async Task<bool> DownloadAsync()
         {

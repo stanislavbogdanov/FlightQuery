@@ -23,52 +23,6 @@ namespace FlightQuery
     /// </summary>
     public partial class MainWindow : Window
     {
-        /*
-        private bool _autodownload = true;
-        public bool IsAutoDownload
-        {
-            get { return _autodownload; }
-            set { _autodownload = value; }
-        }
-        public bool IsAutoPreprocess
-        {
-            get { return true; }
-            set { }
-        }
-        public bool IsAutoReadSSIM
-        {
-            get { return true; }
-            set { }
-        }
-        public bool IsAutoPostprocess
-        {
-            get { return true; }
-            set { }
-        }
-        
-        private string errMsg = string.Empty;
-        private async Task<bool> DownloadAsync()
-        {
-            await Task.Run(() => Thread.Sleep(1000));
-            return false;
-        }
-        private async Task<bool> PreprocessAsync()
-        {
-            await Task.Run(() => Thread.Sleep(1000));
-            return true;
-        }
-        private async Task<bool> ReadSSIMAsync(string fname)
-        {
-            if (fname == "") return false;
-            await Task.Run(() => Thread.Sleep(1000));
-            return true;
-        }
-        private async Task<bool> PostprocessAsync()
-        {
-            await Task.Run(() => Thread.Sleep(1000));
-            return true;
-        }
-        */
         private OpenFileDialog openSSIMFileDialog = new OpenFileDialog();
         public MainWindow()
         {
@@ -91,74 +45,6 @@ namespace FlightQuery
             
             FlightQueryData fqd = (FlightQueryData)App.Current.Resources["FQDataInstance"];
             bool succession = await fqd.AutoRunAsync(this);
-
-            #region Old Stage 1 - 4
-            /*
-            // Stage 1 - Download
-            if (IsAutoDownload)
-            {
-                succession = await DownloadAsync();
-                if (!succession) {
-                    WriteLineToLog("Ошибка автоматической загрузки расписания. Проверьте настройки программы. Рекомендуется обновить расписание вручную.", 
-                                   false);
-                }
-            }
-
-            // Stage 2 - Preprocessing
-            if (succession && IsAutoPreprocess)
-            {
-                succession = await PreprocessAsync();
-                if (!succession) {
-                    WriteLineToLog("Ошибка предварительной обработки. Проверьте настройки программы. Рекомендуется обновить расписание вручную.", 
-                                   false);
-                }
-            }
-
-            // Stage 3 - Reading SSIM file
-            string SSIMfname = string.Empty;
-            if (!(succession && IsAutoReadSSIM))
-            {
-                panelTimetableUpdate.Visibility = Visibility.Visible;
-                try
-                {
-                    SSIMfname = await GetUserSSIMFileName();
-                }
-                catch
-                {
-                    SSIMfname = string.Empty;
-                }
-                panelTimetableUpdate.Visibility = Visibility.Collapsed;
-            }
-            if (SSIMfname == "")
-                WriteLineToLog("Расписание рейсов не обновлено.", true);
-            else
-            {
-                WriteLineToLog("Выбран " + System.IO.Path.GetFileName(SSIMfname), true);
-                succession = await ReadSSIMAsync(SSIMfname);
-                if (!succession)
-                {
-                    WriteLineToLog("Ошибка чтения SSIM.", true);
-                }
-            }
-
-            // Stage 4 - Postprocessing
-            if (IsAutoPostprocess)
-            {
-                if (succession)
-                {
-                    succession = await PostprocessAsync();
-                    if (!succession)
-                    {
-                        WriteLineToLog("Ошибка постобработки. Проверьте настройки программы.", false);
-                    }
-                }
-                else
-                {
-                    WriteLineToLog("Постобработка пропущена.", false);
-                }
-            }
-            */
-            #endregion
 
             // Stage 5 - Select Date Range
             panelDateRange.Visibility = Visibility.Visible;
@@ -195,16 +81,6 @@ namespace FlightQuery
             return SSIMfname;
         }
 
-        /*
-        private Task<string> GetUserSSIMFileNameTask()
-        {
-            TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
-            openSSIMFileDialog.FileOk += delegate { tcs.SetResult(openSSIMFileDialog.FileName); };
-            btnSSIMSkip.Click += delegate { tcs.SetCanceled(); };
-            return tcs.Task;
-        }
-        */
-
         public void WriteLineToLog(string msg, bool clear)
         {
             this.Dispatcher.Invoke(() => {
@@ -230,7 +106,7 @@ namespace FlightQuery
         private void Window_Closed(object sender, EventArgs e)
         {
             FlightQueryData fqd = (FlightQueryData)App.Current.Resources["FQDataInstance"];
-            fqd.Dispose();
+            //fqd.Dispose();
         }
     }
 }

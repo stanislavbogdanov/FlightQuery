@@ -58,8 +58,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="FlightQueryData.cs" />
-    <Compile Include="LogEventArgs.cs" />
-    <Compile Include="PanelVisibilityEventArgs.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
