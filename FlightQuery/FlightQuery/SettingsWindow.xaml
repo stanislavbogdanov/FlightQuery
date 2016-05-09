@@ -39,7 +39,7 @@
             </TabItem>
             <TabItem Header="Чтение" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top">
                 <Grid Background="#FFE5E5E5">
-                    <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" Height="100">
+                    <StackPanel VerticalAlignment="Top" Margin="10,10,10,0" >
                         <CheckBox x:Name="checkBoxAutoReadSSIM" Content="Автоматически выполнять при старте" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding Opt_IsAutoReadSSIM, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
                         <Border BorderBrush="Black" BorderThickness="0" Margin="10,0,10,10" IsEnabled="{Binding IsChecked, ElementName=checkBoxAutoReadSSIM}">
                             <Canvas x:Name="cnvAutoReadSSIMOptions" Height="54" Margin="10,10">
@@ -49,6 +49,11 @@
                                 <CheckBox x:Name="checkBoxKeepUpdate" Content="Сохранять изменения в базе данных" Canvas.Top="33" IsChecked="{Binding Opt_IsKeepUpdate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
                             </Canvas>
                         </Border>
+                        <Canvas Height="32">
+                            <Label Content="Файл базы данных:" Canvas.Top="0" Padding="0,5,5,5"/>
+                            <TextBox x:Name="txtDBFileName" Height="20" Width="243" Canvas.Left="115" Canvas.Top="4" MaxLines="1" Text="{Binding Opt_DBFileName, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
+                            <Button x:Name="btnBrowseDBFileName" Content="Выбрать..." Canvas.Left="363" Canvas.Top="4" Width="75" Height="20"/>
+                        </Canvas>
                     </StackPanel>
                 </Grid>
             </TabItem>

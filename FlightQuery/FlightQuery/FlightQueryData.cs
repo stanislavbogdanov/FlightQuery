@@ -7,19 +7,51 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Configuration;
+using System.IO;
+using System.Data.SQLite;
 
 namespace FlightQuery
 {
-    public class FlightQueryData : IDisposable
+    public class FlightQueryData
     {
         public FlightQueryData()
         {
             PrepareConfig();
             ReadOptionsFromConfig();
+            if (!File.Exists(Opt_DBFileName)) PrepareDataBase();
+        }
+
+        private void PrepareDataBase()
+        {
+            string createTableQuery = @"DROP TABLE IF EXISTS [Timetable]; "+
+                          "CREATE TABLE [Timetable] (" +
+                          "[AirlineDesignator] TEXT NOT NULL, " +
+                          "[FlightNumber] INTEGER NOT NULL, "+
+                          "[DepartureStation] TEXT NOT NULL, " +
+                          "[DepartureDateTime] TEXT NOT NULL, " +
+                          "[DepartureLocalTimeVariation] TEXT NOT NULL," +
+                          "[ArrivalStation] TEXT NOT NULL, " +
+                          "[ArrivalDateTime] TEXT NOT NULL, " +
+                          "[ArrivalLocalTimeVariation] TEXT NOT NULL, " +
+                          "[AircraftType] TEXT NOT NULL, " +
+                          "[AircraftConfiguration] TEXT NOT NULL" +
+                          ");";
+
+            SQLiteConnection.CreateFile(Opt_DBFileName);        
+            using (SQLiteConnection con = new SQLiteConnection("data source="+Opt_DBFileName))
+            {
+                using (SQLiteCommand com = new SQLiteCommand(con))
+                {
+                    con.Open();                             // Open the connection to the database
+                    com.CommandText = createTableQuery;     // Set CommandText to our query that will create the table
+                    com.ExecuteNonQuery();                  // Execute the query
+                    con.Close();                            // Close the connection to the database
+                }
+            }
         }
 
         #region Options - Config reading/writing
-        private const ulong _ALL_OPTIONS_BITS = 0x3FF;
+        private const ulong _ALL_OPTIONS_BITS = 0x7FF;
         private const ulong _OPT_ISAUTODOWNLOAD_MASK = 0x1;
         private const ulong _OPT_ISAUTOPREPROCESS_MASK = 0x2;
         private const ulong _OPT_ISAUTOREADSSIM_MASK = 0x4;
@@ -30,6 +62,7 @@ namespace FlightQuery
         private const ulong _OPT_SSIMFILENAME_MASK = 0x80;
         private const ulong _OPT_ISKEEPUPDATE_MASK = 0x100;
         private const ulong _OPT_AUTOPOSTPROCESSCOMMAND_MASK = 0x200;
+        private const ulong _OPT_DBFILENAME_MASK = 0x400;
 
         private ulong _modifiedoptionsbits = 0;
         private ulong ModifiedOptionsBits
@@ -163,6 +196,17 @@ namespace FlightQuery
             }
         }
 
+        private string _opt_dbfilename = "";
+        public string Opt_DBFileName
+        {
+            get { return _opt_dbfilename; }
+            set
+            {
+                _opt_dbfilename = value;
+                ModifiedOptionsBits |= _OPT_DBFILENAME_MASK; // Set bit "modified" for this option
+            }
+        }
+
         private void PrepareConfig()
         {
             try
@@ -182,6 +226,7 @@ namespace FlightQuery
                 if (appSettings.Settings["SSIMFileName"] == null) appSettings.Settings.Add("SSIMFileName", "");
                 if (appSettings.Settings["IsKeepUpdate"] == null) appSettings.Settings.Add("IsKeepUpdate", Boolean.TrueString);
                 if (appSettings.Settings["AutoPostprocessCommand"] == null) appSettings.Settings.Add("AutoPostprocessCommand", "");
+                if (appSettings.Settings["txtDBFileName"] == null) appSettings.Settings.Add("txtDBFileName", "");
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
             }
@@ -212,7 +257,11 @@ namespace FlightQuery
                 Opt_SSIMFileName = (string)ast.GetValue("SSIMFileName", typeof(string));
                 Opt_IsKeepUpdate = (bool)ast.GetValue("IsKeepUpdate", typeof(bool));
                 Opt_AutoPostprocessCommand = (string)ast.GetValue("AutoPostprocessCommand", typeof(string));
-
+                Opt_DBFileName = (string)ast.GetValue("txtDBFileName", typeof(string));
+                if (Opt_DBFileName == "")
+                {
+                    Opt_DBFileName = "Flights.sqlite3";
+                }
             }
             catch (Exception e)
             {
@@ -238,6 +287,7 @@ namespace FlightQuery
                 appSettings.Settings["SSIMFileName"].Value = Opt_SSIMFileName;
                 appSettings.Settings["IsKeepUpdate"].Value = Opt_IsKeepUpdate.ToString();
                 appSettings.Settings["AutoPostprocessCommand"].Value = Opt_AutoPostprocessCommand;
+                appSettings.Settings["txtDBFileName"].Value = Opt_DBFileName;
 
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
@@ -372,40 +422,5 @@ namespace FlightQuery
             return midresult;
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                    SaveOptionsToConfig();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
-            }
-        }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~FlightQueryData() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
-        }
-        #endregion
     }
 }

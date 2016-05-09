@@ -105,8 +105,6 @@ namespace FlightQuery
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            FlightQueryData fqd = (FlightQueryData)App.Current.Resources["FQDataInstance"];
-            //fqd.Dispose();
         }
     }
 }
