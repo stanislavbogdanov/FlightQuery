@@ -25,6 +25,7 @@ namespace FlightQuery
         {
             string createTableQuery = @"DROP TABLE IF EXISTS [Timetable]; "+
                           "CREATE TABLE [Timetable] (" +
+                          "[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                           "[AirlineDesignator] TEXT NOT NULL, " +
                           "[FlightNumber] INTEGER NOT NULL, "+
                           "[DepartureStation] TEXT NOT NULL, " +
@@ -35,7 +36,25 @@ namespace FlightQuery
                           "[ArrivalLocalTimeVariation] TEXT NOT NULL, " +
                           "[AircraftType] TEXT NOT NULL, " +
                           "[AircraftConfiguration] TEXT NOT NULL" +
-                          ");";
+                          "); " +
+                          "CREATE INDEX [FNumIndex] ON [Timetable] ([FlightNumber]); " +
+                          "CREATE INDEX [DeptStIndex] ON [Timetable] ([DepartureStation]); " +
+                          "CREATE INDEX [DeptDTimeIndex] ON [Timetable] ([DepartureDateTime]); " +
+                          "CREATE INDEX [ArvlStIndex] ON [Timetable] ([ArrivalStation]); " +
+                          "CREATE INDEX [ArvlDTimeIndex] ON [Timetable] ([ArrivalDateTime]); " +
+                          "CREATE TABLE [TDescriptions] (" +
+                          "[TableName] TEXT NOT NULL PRIMARY KEY, " +
+                          "[Caption] TEXT NOT NULL" +
+                          "); " +
+                          "CREATE TABLE [QDescriptions] (" +
+                          "[QueryName] TEXT NOT NULL PRIMARY KEY, " +
+                          "[CommandText] TEXT NOT NULL, " +
+                          "[Caption] TEXT NOT NULL" +
+                          "); " +
+                          "INSERT INTO [TDescriptions] ([TableName], [Caption]) " +
+                          "VALUES ('Timetable','Перечень всех известных рейсов'); " +
+                          "INSERT INTO [TDescriptions] ([TableName], [Caption]) " +
+                          "VALUES ('TDescriptions','Заголовки таблиц'); ";
 
             SQLiteConnection.CreateFile(Opt_DBFileName);        
             using (SQLiteConnection con = new SQLiteConnection("data source="+Opt_DBFileName))
